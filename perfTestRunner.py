@@ -157,11 +157,11 @@ def perform_load_test():
     save_results(test_data)
 
     if "train" in test_data["results"] and "match" in test_data["results"]:
-    write_perf_csv(
-        test_name=testName,
-        train_time=test_data["results"]["train"],
-        match_time=test_data["results"]["match"]
-    )
+        write_perf_csv(
+            test_name=testName,
+            train_time=test_data["results"]["train"],
+            match_time=test_data["results"]["match"]
+        )
 
 
     if test_fail:
