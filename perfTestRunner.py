@@ -3,7 +3,7 @@ import json
 import time
 import os
 from datetime import date, datetime
-from perf_csv_writer import write_perf_csv
+
 
 
 now = datetime.now()
@@ -155,14 +155,6 @@ def perform_load_test():
 
     # Save results after successful test execution
     save_results(test_data)
-
-        # Write CSV performance report (new file, no overwrite)
-    if "train" in test_data["results"] and "match" in test_data["results"]:
-        write_perf_csv(
-            test_name=testName,
-            train_time=test_data["results"]["train"],
-            match_time=test_data["results"]["match"]
-        )
 
 
     if test_fail:
