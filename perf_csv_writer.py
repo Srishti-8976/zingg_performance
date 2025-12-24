@@ -1,22 +1,40 @@
 import csv
-from datetime import datetime
 import os
+from datetime import datetime
 
-def write_perf_csv(test_name, train_time, match_time, output_dir="perf_reports"):
+
+def write_perf_csv(test_name, results, output_dir="perf_reports"):
     
 
-    os.makedirs(output_dir, exist_ok=True)
-
     now = datetime.now()
-    date = now.strftime("%Y-%m-%d")
-    time = now.strftime("%H-%M-%S")
+    date_str = now.strftime("%Y-%m-%d")
+    time_str = now.strftime("%H-%M-%S")
+    year = now.strftime("%Y")
 
-    filename = f"{test_name}_{date}_{time}.csv"
-    filepath = os.path.join(output_dir, filename)
+    # Create directory: perf_reports/<test_name>/<year>/
+    test_dir = os.path.join(output_dir, test_name, year)
+    os.makedirs(test_dir, exist_ok=True)
 
-    with open(filepath, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["date", "time", "test", "train", "match"])
-        writer.writerow([date, time, test_name, train_time, match_time])
+    # CSV filename
+    filename = f"{test_name}_{date_str}_{time_str}.csv"
+    filepath = os.path.join(test_dir, filename)
+
+    # Base columns
+    headers = ["date", "time", "test"]
+
+    # Dynamic phase columns (sorted for consistency)
+    phase_names = sorted(results.keys())
+    headers.extend(phase_names)
+
+    # Row values
+    row = [date_str, time_str, test_name]
+    for phase in phase_names:
+        row.append(results.get(phase))
+
+    # Write CSV
+    with open(filepath, "w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(headers)
+        writer.writerow(row)
 
     return filepath
