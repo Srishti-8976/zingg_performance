@@ -1,0 +1,48 @@
+name: Run Zingg Performance and Generate CSV
+
+on:
+  push:
+    branches:
+      - patch-2
+  workflow_dispatch:
+
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt || true
+          pip install pandas
+
+      - name: Run Zingg performance script
+        run: |
+          python perf_test/run_performance.py
+
+      - name: Show generated CSV files
+        run: |
+          echo "Generated CSV files:"
+          find . -name "*.csv"
+
+      - name: Commit generated CSV files (if any)
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add **/*.csv || true
+
+          if git diff --cached --quiet; then
+            echo "No CSV files to commit"
+          else
+            git commit -m "Add performance result CSV files"
+            git push
+          fi
