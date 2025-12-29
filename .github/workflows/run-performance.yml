@@ -26,7 +26,7 @@ jobs:
 
       - name: Run Zingg performance script
         run: |
-          python perf_test/run_performance.py
+          python perfTestRunner.py
 
       - name: Show generated CSV files
         run: |
