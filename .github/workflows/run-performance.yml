@@ -31,18 +31,20 @@ jobs:
       - name: Show generated CSV files
         run: |
           echo "Generated CSV files:"
-          find . -name "*.csv"
+          find results -name "*.csv" || echo "No CSV files found"
 
       - name: Commit generated CSV files (if any)
+        if: "!contains(github.event.head_commit.message, '[auto]')"
         run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add **/*.csv || true
+          git add results/
 
           if git diff --cached --quiet; then
             echo "No CSV files to commit"
           else
-            git commit -m "Add performance result CSV files"
+            git commit -m "Add performance result CSV files [auto]"
             git push
           fi
+
