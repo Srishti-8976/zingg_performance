@@ -36,10 +36,12 @@ jobs:
 
       # 5️⃣ Run FEBRL performance test
       - name: Run Zingg FEBRL performance script
+        working-directory: zingg_performance
         env:
           INPUT: ../zingg_community_performance_reports/perf_test/perf_test_report/perfTestInput_febrl120K.json
         run: |
           python perfTestRunner.py
+
 
       # 6️⃣ Show generated CSV files
       - name: Show generated CSV files
