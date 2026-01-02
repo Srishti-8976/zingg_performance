@@ -156,11 +156,17 @@ def perform_load_test():
     # Save results after successful test execution
     save_results(test_data)
 
-    if test_data.get("results"):
+    csv_results = {
+    k: v for k, v in test_data["results"].items()
+    if isinstance(v, (int, float))
+    }
+
+    if csv_results:
         write_perf_csv(
             test_name=testName,
-            results=test_data["results"]
+            results=csv_results
         )
+
 
 
     if test_fail:
