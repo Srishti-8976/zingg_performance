@@ -1,67 +1,49 @@
-name: Run Zingg FEBRL Performance and Generate CSV
+name: Run Performance Tests and Save CSV
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - patch-2
-  workflow_dispatch:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
-  performance:
+  performance-test:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout zingg_performance repo (this repo)
-      - name: Checkout zingg_performance repository
+      # 1. Checkout the repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Checkout zingg_community_performance_reports repo (for FEBRL config JSON)
-      - name: Checkout zingg_community_performance_reports repository
-        uses: actions/checkout@v4
-        with:
-          repository: Srishti-8976/zingg_community_performance_reports
-          path: zingg_community_performance_reports
-
-      # 3️⃣ Set up Python
+      # 2. Set up Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # 4️⃣ Install dependencies
-      - name: Install Python dependencies
+      # 3. Install dependencies (if any)
+      - name: Install dependencies
         run: |
-          pip install -r requirements.txt || true
-          pip install pandas
+          python -m pip install --upgrade pip
+          # add requirements.txt here if needed
+          # pip install -r requirements.txt
 
-      # 5️⃣ Run FEBRL performance test
-      - name: Run Zingg FEBRL performance script
+      # 4. Run performance tests
+      - name: Run performance test runner
         env:
-          INPUT: ../zingg_community_performance_reports/perf_test/perf_test_report/perfTestInput_febrl120K.json
+          INPUT: perf_test/test-config.json
         run: |
-          python perfTestRunner.py
+          python3 perfTestRunner.py
 
-
-
-      # 6️⃣ Show generated CSV files
-      - name: Show generated CSV files
-        run: |
-          echo "Generated CSV files:"
-          find results -name "*.csv" || echo "No CSV files found"
-
-      # 7️⃣ Commit generated CSV files safely (no infinite loop)
-      - name: Commit generated CSV files (if any)
-        if: "!contains(github.event.head_commit.message, '[auto]')"
+      # 5. Commit and push generated CSV reports
+      - name: Commit and push performance CSV reports
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add results/
-
-          if git diff --cached --quiet; then
-            echo "No CSV files to commit"
-          else
-            git commit -m "Add FEBRL performance CSV results [auto]"
-            git push
-          fi
-
+          git add perf_reports || true
+          git commit -m "Add performance CSV reports [skip ci]" || true
+          git push
