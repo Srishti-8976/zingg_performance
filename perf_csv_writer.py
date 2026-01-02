@@ -4,14 +4,20 @@ from datetime import datetime
 
 
 def write_perf_csv(test_name, results, output_dir="perf_reports"):
-    
+    """
+    Writes a timestamped CSV performance report.
+
+    - Generic: supports any number of phases dynamically
+    - Folder structure: perf_reports/<test_name>/<year>/
+    - Does NOT overwrite previous reports
+    """
 
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     time_str = now.strftime("%H-%M-%S")
     year = now.strftime("%Y")
 
-    # Create directory: perf_reports/<test_name>/<year>/
+    # Create directory structure
     test_dir = os.path.join(output_dir, test_name, year)
     os.makedirs(test_dir, exist_ok=True)
 
@@ -19,14 +25,14 @@ def write_perf_csv(test_name, results, output_dir="perf_reports"):
     filename = f"{test_name}_{date_str}_{time_str}.csv"
     filepath = os.path.join(test_dir, filename)
 
-    # Base columns
+    # Base headers
     headers = ["date", "time", "test"]
 
-    # Dynamic phase columns (sorted for consistency)
+    # Dynamic phase headers
     phase_names = sorted(results.keys())
     headers.extend(phase_names)
 
-    # Row values
+    # CSV row
     row = [date_str, time_str, test_name]
     for phase in phase_names:
         row.append(results.get(phase))
