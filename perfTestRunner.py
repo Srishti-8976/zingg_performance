@@ -1,8 +1,17 @@
-import subprocess
+import os
 import json
 import time
-import os
+import subprocess
+import csv
+from pathlib import Path
 from datetime import date, datetime
+
+
+
+REPORTS_DIR = Path("perf_reports")
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+CSV_FILE = REPORTS_DIR / f"perf_{date.today().isoformat()}.csv"
 
 
 
@@ -118,6 +127,31 @@ def compare_results(prev_results, new_results):
                 test_fail = True
     return test_fail
 
+def write_csv_results(test_name, results):
+    with open(CSV_FILE, mode="w", newline="") as f:
+        writer = csv.writer(f)
+
+        writer.writerow([
+            "date",
+            "year",
+            "test_name",
+            "phase",
+            "duration_minutes"
+        ])
+
+        today = date.today()
+        year = today.year
+
+        for phase, duration in results.items():
+            if isinstance(duration, (int, float)):
+                writer.writerow([
+                    today.isoformat(),
+                    year,
+                    test_name,
+                    phase,
+                    duration
+                ])
+
 
 def perform_load_test():
 
@@ -155,6 +189,9 @@ def perform_load_test():
 
     # Save results after successful test execution
     save_results(test_data)
+
+    #Saving it into csv file in the same repo
+    write_csv_results(test_name, test_data["results"])
 
 
     if test_fail:
